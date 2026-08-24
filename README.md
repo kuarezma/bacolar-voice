@@ -2,6 +2,25 @@
 
 Online oyun oynarken arkadaşlarınızla en düşük gecikmeyle (ultra-low latency), kristal netliğinde ses iletişimi kurabilmeniz için tasarlanmış modern masaüstü (**macOS & Windows**) ve web sesli sohbet platformu.
 
+[![GitHub Release](https://img.shields.io/github/v/release/kuarezma/nexus-voice?style=for-the-badge&color=6366f1&logo=github)](https://github.com/kuarezma/nexus-voice/releases/latest)
+[![macOS Support](https://img.shields.io/badge/macOS-Apple%20Silicon%20%26%20Intel-000000?style=for-the-badge&logo=apple)](https://github.com/kuarezma/nexus-voice/releases/latest)
+[![Windows Support](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-0078D6?style=for-the-badge&logo=windows)](https://github.com/kuarezma/nexus-voice/releases/latest)
+
+---
+
+## 📥 İndirme Seçenekleri (Downloads)
+
+Uygulamanın en son sürümünü işletim sisteminize göre doğrudan aşağıdaki linklerden indirebilirsiniz:
+
+| Platform | Format | İndirme Linki |
+|---|---|---|
+| 🍏 **macOS (Apple Silicon M1/M2/M3/M4)** | `.dmg` Dosyası | [⬇️ NexusVoice-mac-arm64.dmg İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
+| 🍏 **macOS (Intel x64)** | `.dmg` Dosyası | [⬇️ NexusVoice-mac-x64.dmg İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
+| 🪟 **Windows 10 / 11 (Kurulum Sihirbazı)** | `.exe` (NSIS Installer) | [⬇️ NexusVoice-win-Setup.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
+| 🪟 **Windows Portable (Kurulumsuz)** | `.exe` (Portable) | [⬇️ NexusVoice-win-portable.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
+
+> 💡 Tüm geçmiş sürümler ve ek paketler için **[GitHub Releases Sayfası](https://github.com/kuarezma/nexus-voice/releases)**'nı ziyaret edebilirsiniz.
+
 ---
 
 ## ✨ Temel Özellikler
@@ -23,7 +42,7 @@ Online oyun oynarken arkadaşlarınızla en düşük gecikmeyle (ultra-low laten
 - **Oyuncu Kimliği:** `KullanıcıAdı#Tag` (Örn: `CyberNinja#1337`) formatında etiketli oyuncu kimliği.
 - **Özelleştirilebilir Avatar & Durum:** 8 farklı oyun temalı avatar (Cyber Ninja, Gamer Cat, Mecha Pilot vb.), çevrimiçi durumu (Online, Oyunda: "Counter-Strike 2", AFK, DND).
 - **Arkadaş Ekleme:** Kullanıcı adı ve etiket ile anında istek gönderme, kabul etme, reddetme, silme.
-- **1-1 Doğrudan Sesli Arama (Direct Call):** Telefon çalma melodisi, gelen/giden arama penceresi, görüşme sayacı ve anında P2P ses bağlantısı.
+- **1-1 Doğrudan Sesli Arama (Direct Call):** Telefon çalma melodisi, gelen/giden arama ekranı, görüşme sayacı ve anında P2P ses bağlantısı.
 
 ### 3. 🔊 Ses Odaları (Oyun Lobileri & Kanallar)
 - Hazır kategoriler: "🎯 CS2 Rekabetçi", "🔥 Valorant 5-Stack", "⚔️ League of Legends", "👥 Duo Odası Alpha", "☕ Sohbet & Lounge", "🌙 AFK".
@@ -36,33 +55,27 @@ Online oyun oynarken arkadaşlarınızla en düşük gecikmeyle (ultra-low laten
 
 ---
 
-## 🚀 Hızlı Başlangıç & Çalıştırma
+## 🚀 Kaynak Koddan Çalıştırma & Geliştirme
 
-### 1. Gereksinimler
-- Node.js (v18+) ve npm
-
-### 2. Tek Komutla Hem Sunucuyu Hem Uygulamayı Başlatma
 ```bash
-# Bağımlılıkları yükleyin (İlk seferde)
+# Bağımlılıkları yükleyin
 npm install
 cd server && npm install
 cd ../client && npm install
 cd ..
 
-# Geliştirme Modunda Başlat (Sunucu + Web İstemci)
+# Web Geliştirme Modunda Başlat (Sunucu + Web İstemci)
 npm run dev
-```
+# Tarayıcıda aç: http://localhost:5173
 
-Tarayıcınızda açmak için:
-👉 **`http://localhost:5173`**
-
-### 3. Masaüstü Uygulaması Olarak Başlatma (Electron + macOS / Windows)
-```bash
-# Sunucu, İstemci ve Electron masaüstü penceresini birlikte başlatır:
+# Masaüstü Modunda Başlat (Electron Penceresi)
 npm run dev:all
 ```
 
-### 4. Masaüstü Kurulum Paketlerini Oluşturma
+---
+
+## 📦 Yerel Olarak DMG ve EXE Paketleme
+
 ```bash
 # macOS için (.dmg ve .zip):
 npm run package:mac
@@ -70,48 +83,4 @@ npm run package:mac
 # Windows için (.exe installer ve portable):
 npm run package:win
 ```
-
----
-
-## 📁 Proje Dizin Yapısı
-
-```
-optimistic-newton/
-├── client/                     # React 18 + Vite + TailwindCSS Frontend
-│   ├── src/
-│   │   ├── audio/              # WebRTC & Ses Motoru
-│   │   │   ├── AudioController.ts  # WebRTC Mesh, VAD, PTT, VU-meter, Per-user Gain
-│   │   │   └── soundEffects.ts     # Web Audio API sentezlenmiş ses efektleri
-│   │   ├── components/         # UI Bileşenleri
-│   │   │   ├── Sidebar.tsx             # Odalar, Navigasyon, Kullanıcı Kontrol Paneli
-│   │   │   ├── VoiceRoomView.tsx       # Ses Izgarası, Konuşanlar, Oda İçi Chat
-│   │   │   ├── FriendsView.tsx         # Arkadaş Listesi, Arama, 1-1 Arama Butonu
-│   │   │   ├── AudioSettingsModal.tsx  # Cihaz Seçimi, VU Meter, PTT Tuş Atama, Test
-│   │   │   ├── UserSettingsModal.tsx   # Avatar, Nick#Tag, Çevrimiçi/Oyun Durumu
-│   │   │   ├── CreateRoomModal.tsx     # Yeni Oda / Lobi Oluşturma
-│   │   │   └── DirectCallModal.tsx     # 1-1 Sesli Arama Pop-up & Ekranı
-│   │   ├── context/            # Global State Yönetimi
-│   │   │   ├── AuthContext.tsx         # Kullanıcı Profili & Avatarlar
-│   │   │   ├── SocketContext.tsx       # Socket.IO & Realtime Senkronizasyon
-│   │   │   └── VoiceContext.tsx        # WebRTC Odası, PTT Dinleyicisi, Aramalar
-│   │   ├── App.tsx
-│   │   └── index.css           # Tailwind + Özel Dark Theme Animasyonları
-│   └── package.json
-├── server/                     # Node.js + Express + Socket.IO Signaling Server
-│   ├── src/
-│   │   ├── index.ts            # Socket.IO Olayları, WebRTC Signaling, REST API
-│   │   ├── store.ts            # Odalar, Kullanıcılar, Arkadaşlık İlişkileri
-│   │   └── types.ts            # Paylaşılan Tipler
-│   └── package.json
-├── electron/                   # Electron Masaüstü Sarmalayıcı
-│   ├── main.ts                 # Masaüstü Penceresi, İzinler, Global Hotkeys
-│   ├── preload.ts              # Güvenli IPC Köprüsü
-│   └── tsconfig.json
-└── package.json                # Monorepo komutları (dev, build, package)
-```
-
----
-
-## 🛡️ Ağ & Güvenlik
-- **WebRTC P2P:** Ses verisi doğrudan kullanıcılar arasında peer-to-peer iletilir, sunucuda ses kaydı tutulmaz.
-- **STUN Sunucuları:** NAT arkasındaki oyuncuların kesintisiz bağlanabilmesi için Google STUN sunucuları entegredir.
+Paketler otomatik olarak `release/` klasörüne oluşturulur.

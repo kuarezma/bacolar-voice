@@ -13,8 +13,9 @@
     "build:client": "cd client && npm run build",
     "build:electron": "tsc -p electron/tsconfig.json",
     "build": "npm run build:server && npm run build:client && npm run build:electron",
-    "package:mac": "electron-builder --mac",
-    "package:win": "electron-builder --win"
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:win": "npm run build && electron-builder --win",
+    "dist": "npm run build && electron-builder -mw"
   },
   "keywords": ["voice-chat", "webrtc", "gaming", "low-latency", "electron", "react"],
   "author": "NexusVoice Team",
@@ -31,6 +32,7 @@
   "build": {
     "appId": "com.nexusvoice.app",
     "productName": "NexusVoice",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "directories": {
       "output": "release"
     },
@@ -40,10 +42,22 @@
     ],
     "mac": {
       "category": "public.app-category.games",
-      "target": ["dmg", "zip"]
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] },
+        { "target": "zip", "arch": ["x64", "arm64"] }
+      ]
     },
     "win": {
-      "target": ["nsis", "portable"]
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
