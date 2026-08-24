@@ -1,9 +1,39 @@
-import { app, BrowserWindow, globalShortcut, ipcMain, session } from 'electron';
+import { app, BrowserWindow, globalShortcut, session } from 'electron';
+import { ChildProcess, fork } from 'child_process';
 import path from 'path';
 
 let mainWindow: BrowserWindow | null = null;
+let signalingServer: ChildProcess | null = null;
 
 const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged;
+
+function startBundledSignalingServer() {
+  if (isDev || signalingServer) return;
+
+  const serverEntryPath = path.join(process.resourcesPath, 'server', 'dist', 'index.js');
+  const dataFilePath = path.join(app.getPath('userData'), 'server-data.json');
+
+  signalingServer = fork(serverEntryPath, [], {
+    cwd: path.dirname(serverEntryPath),
+    env: {
+      ...process.env,
+      ELECTRON_RUN_AS_NODE: '1',
+      NEXUS_DATA_FILE: dataFilePath,
+      PORT: '3001'
+    }
+  });
+
+  signalingServer.on('error', (error) => {
+    console.error('Yerel sinyalleşme sunucusu başlatılamadı:', error);
+  });
+
+  signalingServer.on('exit', (code) => {
+    if (code !== null && code !== 0) {
+      console.error(`Yerel sinyalleşme sunucusu beklenmedik biçimde kapandı: ${code}`);
+    }
+    signalingServer = null;
+  });
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -45,6 +75,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  startBundledSignalingServer();
   createWindow();
 
   // Varsayılan global kısayollar (Oyun arka plandayken Mute aç/kapa)
@@ -63,13 +94,9 @@ app.whenReady().then(() => {
   });
 });
 
-ipcMain.on('register-shortcuts', (event, data: { pttKey: string }) => {
-  // Dinamik tuş kaydı
-  console.log('Registering dynamic shortcuts:', data);
-});
-
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
+  signalingServer?.kill();
 });
 
 app.on('window-all-closed', () => {

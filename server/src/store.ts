@@ -3,7 +3,7 @@ import path from 'path';
 import { UserProfile, FriendRequest, VoiceRoom, ChatMessage, DirectCallSession } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
-const DATA_FILE = path.join(__dirname, '../data.json');
+const DATA_FILE = process.env.NEXUS_DATA_FILE || path.join(__dirname, '../data.json');
 
 interface DatabaseSchema {
   users: Record<string, UserProfile>;
@@ -134,6 +134,7 @@ export class DataStore {
 
   private saveToDisk() {
     try {
+      fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
       const usersObj: Record<string, UserProfile> = {};
       this.users.forEach((v, k) => {
         usersObj[k] = { ...v, status: 'offline', currentRoomId: undefined, socketId: undefined };

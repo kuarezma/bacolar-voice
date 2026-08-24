@@ -50,7 +50,8 @@ Uygulamanın en son sürümünü işletim sisteminize göre doğrudan aşağıda
 - Oda İçi Metin Kanalı: Oyun oynarken taktik, lobi davet linki veya mesaj paylaşımı.
 
 ### 4. 🖥️ Masaüstü & Web Desteği (macOS & Windows)
-- **Electron Entegrasyonu:** Tam ekran oyun oynarken bile çalışan global kısayollar (`CommandOrControl+Shift+M` ile Mute vb.) ve arka planda ses kısılmasını engelleyen yapılandırma (`backgroundThrottling: false`).
+- **Electron Entegrasyonu:** Tam ekran oyun oynarken bile çalışan global sessize alma kısayolu (`CommandOrControl+Shift+M`) ve arka planda ses kısılmasını engelleyen yapılandırma (`backgroundThrottling: false`). Bas-konuş tuşu uygulama açıkken çalışır.
+- **Paketli Masaüstü Uygulaması:** DMG/EXE sürümü, gerekli yerel sinyalleşme sunucusunu otomatik başlatır; kullanıcı ayrıca `localhost:3001` sunucusu kurmaz.
 - **Web Tarayıcı Desteği:** Aynı zamanda herhangi bir tarayıcıdan `http://localhost:5173` ile erişilebilirlik.
 
 ---
@@ -70,6 +71,9 @@ npm run dev
 
 # Masaüstü Modunda Başlat (Electron Penceresi)
 npm run dev:all
+
+# Sunucu regresyon testleri
+npm test
 ```
 
 ---
@@ -84,3 +88,16 @@ npm run package:mac
 npm run package:win
 ```
 Paketler otomatik olarak `release/` klasörüne oluşturulur.
+
+Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim sisteminin uygulama veri dizininde saklar.
+
+---
+
+## Değişiklik Günlüğü
+
+### 2026-08-25
+
+- Paketli Electron sürümüne otomatik yerel sinyalleşme sunucusu eklendi.
+- Yeni oda listesinin anlık senkronu ve gerçek ping ölçümü düzeltildi.
+- Mikrofon başlatılamadığında oda ve doğrudan arama akışlarına açıklayıcı hata geri bildirimi eklendi.
+- Global sessize alma kısayolu React ses kontrolüne bağlandı; sinyalleşme regresyon testleri eklendi.

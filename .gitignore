@@ -3,6 +3,11 @@ node_modules/
 .pnp
 .pnp.js
 
+# Environment secrets
+.env
+.env.*
+!.env.example
+
 # Production / Build output
 dist/
 dist-ssr/

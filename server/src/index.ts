@@ -147,6 +147,7 @@ io.on('connection', (socket: Socket) => {
     const room = store.createRoom(data.name, data.category, userId, data);
     io.emit('room-created', { room });
     socket.emit('room-created-success', { room });
+    io.emit('rooms-sync', { rooms: store.getAllRooms() });
   });
 
   socket.on('join-room', (data: { roomId: string; password?: string }) => {
@@ -255,6 +256,10 @@ io.on('connection', (socket: Socket) => {
         roomId: data.roomId
       });
     }
+  });
+
+  socket.on('ping', (acknowledge?: () => void) => {
+    acknowledge?.();
   });
 
   // --- SES DURUMU (Speaking, Mute, Deafen) ---

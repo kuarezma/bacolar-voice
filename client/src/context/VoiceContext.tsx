@@ -66,6 +66,19 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   }, [socket]);
 
+  useEffect(() => {
+    const electronApi = window.electronAPI;
+    if (!electronApi) return;
+
+    return electronApi.onGlobalMuteToggle(() => {
+      const nextMuted = audioController.toggleMute();
+      setIsMuted(nextMuted);
+      if (socket?.connected) {
+        socket.emit('voice-mute-toggle', { micMuted: nextMuted });
+      }
+    });
+  }, [socket]);
+
   const updateAudioSettings = (newSettings: Partial<AudioSettings>) => {
     audioController.saveSettings(newSettings);
     setAudioSettings({ ...audioController.settings });
@@ -77,7 +90,11 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!socket || !socket.connected) return false;
 
     // Mikrofonu başlat
-    await audioController.initLocalAudio();
+    const localStream = await audioController.initLocalAudio();
+    if (!localStream) {
+      alert('Mikrofon başlatılamadı. Tarayıcı veya uygulama izinlerini ve seçili mikrofonu kontrol edin.');
+      return false;
+    }
 
     return new Promise((resolve) => {
       socket.emit('join-room', { roomId, password });
@@ -230,7 +247,12 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setIncomingCall(null);
       setDirectCall(data.session);
 
-      await audioController.initLocalAudio();
+      const localStream = await audioController.initLocalAudio();
+      if (!localStream) {
+        socket.emit('end-direct-call', { callId: data.session.callId });
+        alert('Mikrofon başlatılamadığı için arama sonlandırıldı. İzinleri ve seçili mikrofonu kontrol edin.');
+        return;
+      }
 
       const otherUserId = data.session.callerId === user?.id ? data.session.receiverId : data.session.callerId;
       const isInitiator = data.session.callerId === user?.id;
@@ -288,6 +310,10 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       alert(data.message || 'Arama başarısız oldu.');
     });
 
+    socket.on('direct-call-error', (data: { message: string }) => {
+      alert(data.message || 'Arama başlatılamadı.');
+    });
+
     return () => {
       socket.off('user-joined-room');
       socket.off('user-left-room');
@@ -306,6 +332,7 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       socket.off('direct-call-rejected');
       socket.off('direct-call-ended');
       socket.off('direct-call-failed');
+      socket.off('direct-call-error');
     };
   }, [socket, user]);
 

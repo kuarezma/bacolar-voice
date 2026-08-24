@@ -13,6 +13,7 @@
     "build:client": "cd client && npm run build",
     "build:electron": "tsc -p electron/tsconfig.json",
     "build": "npm run build:server && npm run build:client && npm run build:electron",
+    "test": "cd server && npm run test",
     "package:mac": "npm run build && electron-builder --mac",
     "package:win": "npm run build && electron-builder --win",
     "dist": "npm run build && electron-builder -mw"
@@ -39,6 +40,16 @@
     "files": [
       "electron/dist/**/*",
       "client/dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "server/dist",
+        "to": "server/dist"
+      },
+      {
+        "from": "server/node_modules",
+        "to": "server/node_modules"
+      }
     ],
     "mac": {
       "category": "public.app-category.games",
