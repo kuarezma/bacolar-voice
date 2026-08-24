@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { UserProfile, VoiceRoom, FriendRequest } from '../types';
 import { sounds } from '../audio/soundEffects';
+import { getServerUrl } from '../config/server';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -20,8 +21,6 @@ interface SocketContextType {
 
 const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:3001';
-
 export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, updateProfile } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -37,7 +36,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const pingIntervalRef = useRef<any>(null);
 
   useEffect(() => {
-    const s = io(SERVER_URL, {
+    const s = io(getServerUrl(), {
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 10,
       reconnectionDelay: 1000

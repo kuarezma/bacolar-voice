@@ -23,6 +23,33 @@ Uygulamanın en son sürümünü işletim sisteminize göre doğrudan aşağıda
 
 ---
 
+## 🔐 macOS'ta İlk Açılış (Önemli)
+
+macOS paketleri **ad-hoc imzayla** dağıtılıyor; Apple Developer ID ile notarize edilmediği için macOS ilk açılışta uyarı verir. Uygulama zarar görmüş değildir, tek seferlik onay ister:
+
+1. DMG'yi açıp `NexusVoice.app`'i **Applications** klasörüne sürükleyin.
+2. Applications içindeki `NexusVoice`'a **sağ tıklayın** → **Aç** → çıkan uyarıda tekrar **Aç**.
+
+Bu adımı yalnızca bir kez yapmanız yeterlidir; sonraki açılışlar normal çift tıklamayla olur. Terminali tercih ederseniz aynı sonucu şu komut verir:
+
+```bash
+xattr -cr /Applications/NexusVoice.app
+```
+
+---
+
+## 🌐 Arkadaşlarınızla Aynı Odada Buluşma (Sunucu Adresi)
+
+Paketli uygulama açılışta **kendi bilgisayarınızda** bir sinyalleşme sunucusu başlatır. Varsayılan ayarda herkes yalnızca kendi sunucusuna bağlı olduğu için birbirinizi göremezsiniz. Birlikte konuşmak için **tek bir sunucu** seçip herkesin onu girmesi gerekir:
+
+1. İçinizden biri uygulamayı açık tutsun (veya `cd server && npm start` ile sunucuyu çalıştırsın) ve yerel IP adresini öğrensin (`ipconfig getifaddr en0`).
+2. Diğerleri **Oyuncu Profili & Kimlik** ayarlarını açıp **Sunucu Adresi** alanına o adresi yazsın (örn. `http://192.168.1.20:3001`).
+3. **Kaydet & Güncelle** dendiğinde uygulama yeniden yüklenir ve herkes aynı oda listesini görür.
+
+Aynı yerel ağda değilseniz sunucunun internetten erişilebilir olması gerekir (port yönlendirme veya bir VPS'e deploy). Sunucu şu an kimlik doğrulaması yapmaz; herkese açık bir adrese koymadan önce bunu göz önünde bulundurun.
+
+---
+
 ## ✨ Temel Özellikler
 
 ### 1. 🎙️ Düşük Gecikmeli Ses Motoru & Gelişmiş Mikrofon Ayarları
@@ -94,6 +121,13 @@ Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim 
 ---
 
 ## Değişiklik Günlüğü
+
+### v1.0.2 — 2026-08-25
+
+- macOS paketi artık tutarlı bir ad-hoc imzayla üretiliyor; "uygulama zarar görmüş" hatası giderildi.
+- Paketli sürümde boş pencereyle açılma hatası düzeltildi (Vite `base` yolu `file://` protokolüne uyarlandı).
+- Ayarlara sunucu adresi alanı eklendi; farklı bilgisayarlardaki kullanıcılar artık ortak bir sunucuda buluşabiliyor.
+- Pencere başlığı "client" yerine "NexusVoice" olarak düzeltildi.
 
 ### v1.0.1 — 2026-08-25
 
