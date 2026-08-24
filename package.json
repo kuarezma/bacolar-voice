@@ -1,0 +1,49 @@
+{
+  "name": "nexus-voice",
+  "version": "1.0.0",
+  "description": "NexusVoice - Ultra-low Latency Gaming Voice Chat App for macOS & Windows",
+  "main": "electron/dist/main.js",
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+    "dev": "concurrently -k -n \"SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:all": "concurrently -k -n \"SERVER,CLIENT,APP\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"npm run dev:server\" \"npm run dev:client\" \"npm run dev:electron\"",
+    "build:server": "cd server && npm run build",
+    "build:client": "cd client && npm run build",
+    "build:electron": "tsc -p electron/tsconfig.json",
+    "build": "npm run build:server && npm run build:client && npm run build:electron",
+    "package:mac": "electron-builder --mac",
+    "package:win": "electron-builder --win"
+  },
+  "keywords": ["voice-chat", "webrtc", "gaming", "low-latency", "electron", "react"],
+  "author": "NexusVoice Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
+    "wait-on": "^8.0.2",
+    "typescript": "^5.7.3",
+    "@types/node": "^22.13.4"
+  },
+  "build": {
+    "appId": "com.nexusvoice.app",
+    "productName": "NexusVoice",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/dist/**/*",
+      "client/dist/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.games",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    }
+  }
+}
