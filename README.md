@@ -95,7 +95,7 @@ Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim 
 
 ## Değişiklik Günlüğü
 
-### 2026-08-25
+### v1.0.1 — 2026-08-25
 
 - Paketli Electron sürümüne otomatik yerel sinyalleşme sunucusu eklendi.
 - Yeni oda listesinin anlık senkronu ve gerçek ping ölçümü düzeltildi.
