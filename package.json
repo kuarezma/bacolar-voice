@@ -1,6 +1,6 @@
 {
   "name": "bacolar-voice",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "BacolarVoice - Ultra-low Latency Gaming Voice Chat App for macOS & Windows",
   "main": "electron/dist/main.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "build:client": "cd client && npm run build",
     "build:electron": "tsc -p electron/tsconfig.json",
     "build": "npm run build:server && npm run build:client && npm run build:electron",
+    "start": "npm run build:server && node server/dist/index.js",
     "test": "cd server && npm run test",
     "package:mac": "npm run build && electron-builder --mac",
     "package:win": "npm run build && electron-builder --win",

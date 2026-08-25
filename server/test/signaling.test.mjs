@@ -7,8 +7,25 @@ import { rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { io } from 'socket.io-client';
+import networkConfigModule from '../dist/config.js';
+
+const { resolveNetworkConfig } = networkConfigModule;
 
 let openServer;
+
+test('uses a tailnet-reachable bind host by default', () => {
+  assert.deepEqual(resolveNetworkConfig({}), { port: 3001, bindHost: '0.0.0.0' });
+  assert.deepEqual(
+    resolveNetworkConfig({ PORT: '43119', BACOLAR_BIND_HOST: '127.0.0.1' }),
+    { port: 43119, bindHost: '127.0.0.1' }
+  );
+});
+
+test('rejects malformed or out-of-range ports', () => {
+  for (const port of ['3001abc', '0', '65536', '-1', '3.5']) {
+    assert.throws(() => resolveNetworkConfig({ PORT: port }), /geçerli bir tam sayı/);
+  }
+});
 
 function getOpenPort() {
   return new Promise((resolve, reject) => {

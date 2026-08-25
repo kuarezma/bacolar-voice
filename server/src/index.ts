@@ -1,9 +1,11 @@
+import 'dotenv/config';
 import express from 'express';
 import http from 'http';
 import { Server, Socket } from 'socket.io';
 import cors from 'cors';
 import { store } from './store';
 import { UserProfile } from './types';
+import { resolveNetworkConfig } from './config';
 
 const app = express();
 app.use(cors());
@@ -17,7 +19,7 @@ const io = new Server(server, {
   }
 });
 
-const PORT = process.env.PORT || 3001;
+const { port: PORT, bindHost: BIND_HOST } = resolveNetworkConfig();
 
 // Boş bırakılırsa sunucu herkese açık çalışır. Herkese açık bir adrese
 // koyarken doldurulmalı: istemciler bu değeri bilmeden bağlanamaz.
@@ -598,8 +600,9 @@ server.on('error', (err: NodeJS.ErrnoException) => {
   process.exit(1);
 });
 
-server.listen(PORT, () => {
-  console.log(`🚀 BacolarVoice Signaling Server running on http://localhost:${PORT}`);
+server.listen(PORT, BIND_HOST, () => {
+  const visibleHost = BIND_HOST === '0.0.0.0' ? 'Tailscale/LAN IP adresi' : BIND_HOST;
+  console.log(`🚀 BacolarVoice Signaling Server running on http://${visibleHost}:${PORT}`);
   if (!SERVER_TOKEN) {
     console.warn('⚠️  BACOLAR_SERVER_TOKEN tanımlı değil: sunucuya erişebilen herkes bağlanabilir.');
   }

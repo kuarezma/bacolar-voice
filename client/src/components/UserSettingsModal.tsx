@@ -190,9 +190,9 @@ export const UserSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
               className="w-full bg-[#171f30] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
             />
             <p className="text-[11px] text-slate-400 leading-relaxed">
-              Varsayılan adres bilgisayarınızda çalışan yerel sunucudur ve yalnızca sizi görür.
-              Arkadaşlarınızla aynı odalarda buluşmak için hepinizin <span className="text-slate-300">aynı adresi</span> girmesi gerekir
-              (örn. <span className="font-mono text-slate-300">http://192.168.1.20:3001</span>).
+              Farklı şehirlerden ücretsiz bağlanmak için iki bilgisayarda da Tailscale kullanın.
+              Hepiniz sunucuyu açık tutan bilgisayarın <span className="text-slate-300">100.x.y.z Tailscale adresini</span> girmelisiniz
+              (örn. <span className="font-mono text-slate-300">http://100.90.80.70:3001</span>).
               Adres değiştirildiğinde uygulama yeniden yüklenir.
             </p>
           </div>

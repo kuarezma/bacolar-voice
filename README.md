@@ -38,15 +38,36 @@ xattr -cr /Applications/BacolarVoice.app
 
 ---
 
-## 🌐 Arkadaşlarınızla Aynı Odada Buluşma (Sunucu Adresi)
+## 🌐 Farklı Şehirlerden Ücretsiz Bağlanma (Tailscale)
 
-Paketli uygulama açılışta **kendi bilgisayarınızda** bir sinyalleşme sunucusu başlatır. Varsayılan ayarda herkes yalnızca kendi sunucusuna bağlı olduğu için birbirinizi göremezsiniz. Birlikte konuşmak için **tek bir sunucu** seçip herkesin onu girmesi gerekir:
+Rize–Trabzon gibi farklı internet bağlantılarında ücretsiz kullanım için önerilen yöntem **Tailscale Personal** ağıdır. Ayrı bir VPS, modem port yönlendirmesi veya sabit genel IP gerekmez. Sunucu birinizin bilgisayarında çalışır; bu bilgisayar ve BacolarVoice konuşma boyunca açık kalmalıdır.
 
-1. İçinizden biri uygulamayı açık tutsun (veya `cd server && npm start` ile sunucuyu çalıştırsın) ve yerel IP adresini öğrensin (`ipconfig getifaddr en0`).
-2. Diğerleri **Oyuncu Profili & Kimlik** ayarlarını açıp **Sunucu Adresi** alanına o adresi yazsın (örn. `http://192.168.1.20:3001`).
-3. **Kaydet & Güncelle** dendiğinde uygulama yeniden yüklenir ve herkes aynı oda listesini görür.
+1. İki bilgisayara da [Tailscale](https://tailscale.com/download) kurun ve herkes kendi hesabıyla giriş yapsın.
+2. Sunucuyu çalıştıracak kişi [Tailscale Users](https://login.tailscale.com/admin/users) sayfasından **Invite external users** ile diğer kişiyi kendi ağına davet etsin. Hesap paylaşmayın.
+3. İki cihazın da aynı Tailscale ağında ve çevrimiçi olduğunu Machines sayfasından doğrulayın; iki cihazın `100.x.y.z` adreslerini not edin.
+4. Tailscale **Access controls** ekranında varsayılan “herkese izin ver” kuralını aşağıdaki politikayla değiştirin. Örnek IP'leri iki bilgisayarın gerçek Tailscale IP'leriyle değiştirin. Bu politika yalnızca bu iki cihazın birbiriyle konuşmasına izin verir; WebRTC'nin dinamik ses portları nedeniyle iki cihaz arasında tüm protokoller gereklidir.
 
-Aynı yerel ağda değilseniz sunucunun internetten erişilebilir olması gerekir (port yönlendirme veya bir VPS'e deploy). Sunucu şu an kimlik doğrulaması yapmaz; herkese açık bir adrese koymadan önce bunu göz önünde bulundurun.
+```json
+{
+  "hosts": {
+    "rize-bacolar": "100.90.80.70",
+    "trabzon-bacolar": "100.60.50.40"
+  },
+  "grants": [
+    {
+      "src": ["rize-bacolar", "trabzon-bacolar"],
+      "dst": ["rize-bacolar", "trabzon-bacolar"],
+      "ip": ["*"]
+    }
+  ]
+}
+```
+
+5. Sunucu olacak bilgisayarda BacolarVoice'u açın. Bu cihazın Tailscale IPv4 adresini Tailscale uygulamasından veya `tailscale ip -4` komutuyla öğrenin.
+6. Her iki BacolarVoice uygulamasında **Oyuncu Profili & Kimlik → Sunucu Adresi** alanına `http://100.x.y.z:3001` yazıp **Kaydet & Güncelle** seçeneğine basın.
+7. Aynı oda listesinin görünmesi sinyalleşmenin çalıştığını gösterir. Tam kabul için aynı odaya girip iki yönde de sesin duyulduğunu doğrulayın.
+
+Tailscale bağlantısı uçtan uca şifreli özel ağ içinde kalır. **Tailscale Funnel açmayın** ve modemde `3001` portunu internete yönlendirmeyin.
 
 ---
 
@@ -55,7 +76,9 @@ Aynı yerel ağda değilseniz sunucunun internetten erişilebilir olması gereki
 Sinyalleşme sunucusu varsayılan olarak korumasızdır: adrese erişebilen herkes bağlanabilir. Yerel ağda sorun değildir, ama herkese açık bir adreste çalıştırıyorsanız bir şifre belirleyin:
 
 ```bash
-BACOLAR_SERVER_TOKEN=paylasilan-gizli-deger npm start
+cp .env.example .env
+# .env içinde BACOLAR_SERVER_TOKEN değerini belirleyin
+npm start
 ```
 
 Kullanıcılar aynı değeri **Oyuncu Profili → Sunucu Şifresi** alanına girer. Yanlış şifreyle hem WebSocket bağlantısı hem REST çağrıları reddedilir ve uygulamada açıklayıcı bir uyarı çıkar. `/api/health` bilinçli olarak korumasız bırakılmıştır; masaüstü uygulaması 3001 portunu kimin tuttuğunu şifreyi bilmeden anlayabilmelidir.
@@ -163,6 +186,15 @@ Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim 
 ---
 
 ## Değişiklik Günlüğü
+
+### v1.0.6 — 2026-08-25
+
+- Farklı şehirlerdeki kullanıcılar için ücretsiz Tailscale bağlantı akışı eklendi.
+- Sunucu varsayılan olarak `0.0.0.0` üzerinde dinleyerek Tailscale ve yerel ağ bağlantılarını açıkça kabul ediyor; `BACOLAR_BIND_HOST` ile sınırlandırılabiliyor.
+- Tailscale erişim politikası yalnızca seçilen iki bilgisayarı kapsayacak şekilde sınırlandırıldı.
+- Ortam değişkenleri `.env` dosyasından yükleniyor ve kökten `npm start` komutuyla sunucu derlenip başlatılıyor.
+- Uygulamadaki sunucu adresi yardımı `100.x.y.z` Tailscale adresini gösterecek şekilde güncellendi.
+- Ağ bağlama ayarı ile hatalı port değerleri için regresyon testleri eklendi.
 
 ### v1.0.5 — 2026-08-25
 
