@@ -38,6 +38,11 @@ jobs:
       - name: Build All Projects
         run: npm run build
 
+      # Regresyon testleri paketleme öncesinde koşar; başarısız olurlarsa
+      # bozuk bir sürüm yayınlanmaz.
+      - name: Run Server Regression Tests
+        run: npm test
+
       - name: Build macOS DMGs (.dmg & .zip)
         if: matrix.os == 'macos-latest'
         run: npx electron-builder --mac --publish never
