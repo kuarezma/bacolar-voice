@@ -3,7 +3,7 @@ import path from 'path';
 import { UserProfile, FriendRequest, VoiceRoom, ChatMessage, DirectCallSession } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
-const DATA_FILE = process.env.NEXUS_DATA_FILE || path.join(__dirname, '../data.json');
+const DATA_FILE = process.env.BACOLAR_DATA_FILE || path.join(__dirname, '../data.json');
 
 interface DatabaseSchema {
   users: Record<string, UserProfile>;

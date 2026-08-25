@@ -78,7 +78,7 @@ export const Sidebar: React.FC<Props> = ({
           </div>
           <div>
             <h1 className="font-extrabold text-sm tracking-wider text-white bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-              NEXUS<span className="text-indigo-400">VOICE</span>
+              BACOLAR<span className="text-indigo-400">VOICE</span>
             </h1>
             <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-mono">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />

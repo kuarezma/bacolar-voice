@@ -82,7 +82,7 @@ export class AudioController {
 
   public loadSettings() {
     try {
-      const saved = localStorage.getItem('nexus_audio_settings');
+      const saved = localStorage.getItem('bacolar_audio_settings');
       if (saved) {
         this.settings = { ...DEFAULT_AUDIO_SETTINGS, ...JSON.parse(saved) };
       }
@@ -92,7 +92,7 @@ export class AudioController {
   public saveSettings(newSettings: Partial<AudioSettings>) {
     this.settings = { ...this.settings, ...newSettings };
     try {
-      localStorage.setItem('nexus_audio_settings', JSON.stringify(this.settings));
+      localStorage.setItem('bacolar_audio_settings', JSON.stringify(this.settings));
     } catch (e) {}
     this.applySettingsChanges();
   }

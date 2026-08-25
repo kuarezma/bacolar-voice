@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(() => {
     try {
-      const saved = localStorage.getItem('nexus_user_profile');
+      const saved = localStorage.getItem('bacolar_user_profile');
       if (saved) return JSON.parse(saved);
     } catch (e) {}
 
@@ -44,13 +44,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       deafened: false
     };
 
-    localStorage.setItem('nexus_user_profile', JSON.stringify(initialUser));
+    localStorage.setItem('bacolar_user_profile', JSON.stringify(initialUser));
     return initialUser;
   });
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('nexus_user_profile', JSON.stringify(user));
+      localStorage.setItem('bacolar_user_profile', JSON.stringify(user));
     }
   }, [user]);
 

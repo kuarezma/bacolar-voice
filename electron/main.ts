@@ -13,14 +13,14 @@ const SIGNALING_PORT = 3001;
 // server/src/index.ts, portu alamadığında bu kodla çıkar.
 const EXIT_PORT_IN_USE = 3;
 
-type PortOccupant = 'nexusvoice' | 'foreign' | 'free';
+type PortOccupant = 'bacolarvoice' | 'foreign' | 'free';
 
 function reportServerFailure(message: string) {
   if (isQuitting) return;
-  dialog.showErrorBox('NexusVoice sunucusuna bağlanılamadı', message);
+  dialog.showErrorBox('BacolarVoice sunucusuna bağlanılamadı', message);
 }
 
-// Port doluysa oradaki servisin başka bir NexusVoice örneği mi yoksa alakasız bir
+// Port doluysa oradaki servisin başka bir BacolarVoice örneği mi yoksa alakasız bir
 // uygulama mı olduğunu ayırt eder; ilkinde ses hizmeti çalışmaya devam edebilir.
 function probeSignalingPort(): Promise<PortOccupant> {
   return new Promise((resolve) => {
@@ -31,7 +31,7 @@ function probeSignalingPort(): Promise<PortOccupant> {
         response.on('data', (chunk) => (body += chunk));
         response.on('end', () => {
           try {
-            resolve(JSON.parse(body).service === 'nexusvoice-signaling' ? 'nexusvoice' : 'foreign');
+            resolve(JSON.parse(body).service === 'bacolarvoice-signaling' ? 'bacolarvoice' : 'foreign');
           } catch {
             resolve('foreign');
           }
@@ -52,12 +52,12 @@ async function startBundledSignalingServer() {
 
   const occupant = await probeSignalingPort();
 
-  if (occupant === 'nexusvoice') return;
+  if (occupant === 'bacolarvoice') return;
 
   if (occupant === 'foreign') {
     reportServerFailure(
-      `${SIGNALING_PORT} numaralı portu başka bir uygulama kullanıyor, bu yüzden NexusVoice sunucusu başlatılamadı.\n\n` +
-        `O uygulamayı kapatıp NexusVoice'u yeniden açın; ya da ortak bir sunucu kullanıyorsanız ` +
+      `${SIGNALING_PORT} numaralı portu başka bir uygulama kullanıyor, bu yüzden BacolarVoice sunucusu başlatılamadı.\n\n` +
+        `O uygulamayı kapatıp BacolarVoice'u yeniden açın; ya da ortak bir sunucu kullanıyorsanız ` +
         `Oyuncu Profili ayarlarından sunucu adresini değiştirin.`
     );
     return;
@@ -71,7 +71,7 @@ async function startBundledSignalingServer() {
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
-      NEXUS_DATA_FILE: dataFilePath,
+      BACOLAR_DATA_FILE: dataFilePath,
       PORT: String(SIGNALING_PORT)
     }
   });
@@ -86,8 +86,8 @@ async function startBundledSignalingServer() {
 
     if (code === EXIT_PORT_IN_USE) {
       reportServerFailure(
-        `${SIGNALING_PORT} numaralı port kullanımda olduğu için NexusVoice sunucusu başlatılamadı.\n\n` +
-          `O portu kullanan uygulamayı kapatıp NexusVoice'u yeniden açın.`
+        `${SIGNALING_PORT} numaralı port kullanımda olduğu için BacolarVoice sunucusu başlatılamadı.\n\n` +
+          `O portu kullanan uygulamayı kapatıp BacolarVoice'u yeniden açın.`
       );
       return;
     }
@@ -108,7 +108,7 @@ function createWindow() {
     height: 800,
     minWidth: 900,
     minHeight: 600,
-    title: 'NexusVoice - Gaming Voice Chat',
+    title: 'BacolarVoice - Gaming Voice Chat',
     backgroundColor: '#0b0e14',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

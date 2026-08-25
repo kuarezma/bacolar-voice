@@ -30,9 +30,9 @@ const userToSocket = new Map<string, string>();
 // --- REST ENDPOINTS ---
 
 app.get('/api/health', (req, res) => {
-  // service alanı, Electron'un 3001'i tutan sürecin gerçekten NexusVoice olup
+  // service alanı, Electron'un 3001'i tutan sürecin gerçekten BacolarVoice olup
   // olmadığını ayırt etmesi için gerekiyor.
-  res.json({ service: 'nexusvoice-signaling', status: 'ok', time: Date.now(), usersCount: store.getAllRooms().length });
+  res.json({ service: 'bacolarvoice-signaling', status: 'ok', time: Date.now(), usersCount: store.getAllRooms().length });
 });
 
 app.post('/api/auth/login', (req, res) => {
@@ -542,5 +542,5 @@ server.on('error', (err: NodeJS.ErrnoException) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`🚀 NexusVoice Signaling Server running on http://localhost:${PORT}`);
+  console.log(`🚀 BacolarVoice Signaling Server running on http://localhost:${PORT}`);
 });

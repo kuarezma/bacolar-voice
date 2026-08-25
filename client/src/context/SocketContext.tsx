@@ -43,7 +43,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     s.on('connect', () => {
-      console.log('✅ Connected to NexusVoice Server');
+      console.log('✅ Connected to BacolarVoice Server');
       setIsConnected(true);
 
       if (user) {
@@ -57,7 +57,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
 
     s.on('disconnect', () => {
-      console.warn('❌ Disconnected from NexusVoice Server');
+      console.warn('❌ Disconnected from BacolarVoice Server');
       setIsConnected(false);
     });
 

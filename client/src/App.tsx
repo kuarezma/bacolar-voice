@@ -50,7 +50,7 @@ const MainLayout: React.FC = () => {
             </div>
 
             <h2 className="text-2xl font-extrabold text-white tracking-tight">
-              NexusVoice Oyun Sesli İletişim Ağına Hoş Geldiniz
+              BacolarVoice Oyun Sesli İletişim Ağına Hoş Geldiniz
             </h2>
             <p className="text-sm text-slate-400 max-w-md mt-2">
               Sol menüden bir ses odasına katılabilir, arkadaş ekleyebilir veya doğrudan 1-1 sesli arama başlatabilirsiniz.

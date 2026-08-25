@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'nexus.serverUrl';
+const STORAGE_KEY = 'bacolar.serverUrl';
 
 // Paketlenmiş uygulamada her kurulum kendi yerel sinyalleşme sunucusunu başlatır.
 // Farklı bilgisayarlardaki kullanıcıların aynı odayı görebilmesi için hepsinin

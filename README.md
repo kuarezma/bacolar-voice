@@ -1,10 +1,10 @@
-# 🎮 NexusVoice — Ultra-Low Latency Gaming Voice Chat
+# 🎮 BacolarVoice — Ultra-Low Latency Gaming Voice Chat
 
 Online oyun oynarken arkadaşlarınızla en düşük gecikmeyle (ultra-low latency), kristal netliğinde ses iletişimi kurabilmeniz için tasarlanmış modern masaüstü (**macOS & Windows**) ve web sesli sohbet platformu.
 
-[![GitHub Release](https://img.shields.io/github/v/release/kuarezma/nexus-voice?style=for-the-badge&color=6366f1&logo=github)](https://github.com/kuarezma/nexus-voice/releases/latest)
-[![macOS Support](https://img.shields.io/badge/macOS-Apple%20Silicon%20%26%20Intel-000000?style=for-the-badge&logo=apple)](https://github.com/kuarezma/nexus-voice/releases/latest)
-[![Windows Support](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-0078D6?style=for-the-badge&logo=windows)](https://github.com/kuarezma/nexus-voice/releases/latest)
+[![GitHub Release](https://img.shields.io/github/v/release/kuarezma/bacolar-voice?style=for-the-badge&color=6366f1&logo=github)](https://github.com/kuarezma/bacolar-voice/releases/latest)
+[![macOS Support](https://img.shields.io/badge/macOS-Apple%20Silicon%20%26%20Intel-000000?style=for-the-badge&logo=apple)](https://github.com/kuarezma/bacolar-voice/releases/latest)
+[![Windows Support](https://img.shields.io/badge/Windows-10%20%2F%2011%20x64-0078D6?style=for-the-badge&logo=windows)](https://github.com/kuarezma/bacolar-voice/releases/latest)
 
 ---
 
@@ -14,12 +14,12 @@ Uygulamanın en son sürümünü işletim sisteminize göre doğrudan aşağıda
 
 | Platform | Format | İndirme Linki |
 |---|---|---|
-| 🍏 **macOS (Apple Silicon M1/M2/M3/M4)** | `.dmg` Dosyası | [⬇️ NexusVoice-mac-arm64.dmg İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
-| 🍏 **macOS (Intel x64)** | `.dmg` Dosyası | [⬇️ NexusVoice-mac-x64.dmg İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
-| 🪟 **Windows 10 / 11 (Kurulum Sihirbazı)** | `.exe` (NSIS Installer) | [⬇️ NexusVoice-win-x64-Setup.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
-| 🪟 **Windows Portable (Kurulumsuz)** | `.exe` (Portable) | [⬇️ NexusVoice-win-x64-Portable.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
+| 🍏 **macOS (Apple Silicon M1/M2/M3/M4)** | `.dmg` Dosyası | [⬇️ BacolarVoice-mac-arm64.dmg İndir](https://github.com/kuarezma/bacolar-voice/releases/latest) |
+| 🍏 **macOS (Intel x64)** | `.dmg` Dosyası | [⬇️ BacolarVoice-mac-x64.dmg İndir](https://github.com/kuarezma/bacolar-voice/releases/latest) |
+| 🪟 **Windows 10 / 11 (Kurulum Sihirbazı)** | `.exe` (NSIS Installer) | [⬇️ BacolarVoice-win-x64-Setup.exe İndir](https://github.com/kuarezma/bacolar-voice/releases/latest) |
+| 🪟 **Windows Portable (Kurulumsuz)** | `.exe` (Portable) | [⬇️ BacolarVoice-win-x64-Portable.exe İndir](https://github.com/kuarezma/bacolar-voice/releases/latest) |
 
-> 💡 Tüm geçmiş sürümler ve ek paketler için **[GitHub Releases Sayfası](https://github.com/kuarezma/nexus-voice/releases)**'nı ziyaret edebilirsiniz.
+> 💡 Tüm geçmiş sürümler ve ek paketler için **[GitHub Releases Sayfası](https://github.com/kuarezma/bacolar-voice/releases)**'nı ziyaret edebilirsiniz.
 
 ---
 
@@ -27,13 +27,13 @@ Uygulamanın en son sürümünü işletim sisteminize göre doğrudan aşağıda
 
 macOS paketleri **ad-hoc imzayla** dağıtılıyor; Apple Developer ID ile notarize edilmediği için macOS ilk açılışta uyarı verir. Uygulama zarar görmüş değildir, tek seferlik onay ister:
 
-1. DMG'yi açıp `NexusVoice.app`'i **Applications** klasörüne sürükleyin.
-2. Applications içindeki `NexusVoice`'a **sağ tıklayın** → **Aç** → çıkan uyarıda tekrar **Aç**.
+1. DMG'yi açıp `BacolarVoice.app`'i **Applications** klasörüne sürükleyin.
+2. Applications içindeki `BacolarVoice`'a **sağ tıklayın** → **Aç** → çıkan uyarıda tekrar **Aç**.
 
 Bu adımı yalnızca bir kez yapmanız yeterlidir; sonraki açılışlar normal çift tıklamayla olur. Terminali tercih ederseniz aynı sonucu şu komut verir:
 
 ```bash
-xattr -cr /Applications/NexusVoice.app
+xattr -cr /Applications/BacolarVoice.app
 ```
 
 ---
@@ -122,11 +122,16 @@ Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim 
 
 ## Değişiklik Günlüğü
 
+### v1.0.4 — 2026-08-25
+
+- Uygulama adı **BacolarVoice** olarak değiştirildi; paket kimliği, pencere başlığı, sunucu servis adı, yerel ayar anahtarları ve depo adresi buna göre güncellendi.
+- Uygulamaya kendi ikonu eklendi (indigo-mor gradyan zemin üzerinde yayın simgesi); macOS ve Windows paketleri artık varsayılan Electron ikonunu kullanmıyor.
+
 ### v1.0.3 — 2026-08-25
 
 - 3001 portu başka bir uygulama tarafından kullanıldığında uygulama artık sessizce bağlantısız kalmıyor; sebebi açıklayan bir uyarı gösteriyor.
-- Aynı anda ikinci bir NexusVoice penceresi açılması engellendi; ikinci deneme mevcut pencereyi öne getiriyor.
-- Zaten çalışan bir NexusVoice sunucusu varsa uygulama onu tanıyıp yeniden başlatmaya çalışmıyor.
+- Aynı anda ikinci bir BacolarVoice penceresi açılması engellendi; ikinci deneme mevcut pencereyi öne getiriyor.
+- Zaten çalışan bir BacolarVoice sunucusu varsa uygulama onu tanıyıp yeniden başlatmaya çalışmıyor.
 - Windows kurulum sihirbazı ve portable sürüm aynı dosya adını üretip birbirini eziyordu; artık `-Setup.exe` ve `-Portable.exe` olarak ayrı yayınlanıyor.
 
 ### v1.0.2 — 2026-08-25
@@ -134,7 +139,7 @@ Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim 
 - macOS paketi artık tutarlı bir ad-hoc imzayla üretiliyor; "uygulama zarar görmüş" hatası giderildi.
 - Paketli sürümde boş pencereyle açılma hatası düzeltildi (Vite `base` yolu `file://` protokolüne uyarlandı).
 - Ayarlara sunucu adresi alanı eklendi; farklı bilgisayarlardaki kullanıcılar artık ortak bir sunucuda buluşabiliyor.
-- Pencere başlığı "client" yerine "NexusVoice" olarak düzeltildi.
+- Pencere başlığı "client" yerine "BacolarVoice" olarak düzeltildi.
 
 ### v1.0.1 — 2026-08-25
 

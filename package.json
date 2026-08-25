@@ -1,7 +1,7 @@
 {
-  "name": "nexus-voice",
-  "version": "1.0.3",
-  "description": "NexusVoice - Ultra-low Latency Gaming Voice Chat App for macOS & Windows",
+  "name": "bacolar-voice",
+  "version": "1.0.4",
+  "description": "BacolarVoice - Ultra-low Latency Gaming Voice Chat App for macOS & Windows",
   "main": "electron/dist/main.js",
   "scripts": {
     "dev:server": "cd server && npm run dev",
@@ -19,7 +19,7 @@
     "dist": "npm run build && electron-builder -mw"
   },
   "keywords": ["voice-chat", "webrtc", "gaming", "low-latency", "electron", "react"],
-  "author": "NexusVoice Team",
+  "author": "BacolarVoice Team",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^9.1.2",
@@ -31,8 +31,8 @@
     "@types/node": "^22.13.4"
   },
   "build": {
-    "appId": "com.nexusvoice.app",
-    "productName": "NexusVoice",
+    "appId": "com.bacolarvoice.app",
+    "productName": "BacolarVoice",
     "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "directories": {
       "output": "release"

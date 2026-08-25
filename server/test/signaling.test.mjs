@@ -88,14 +88,14 @@ async function connectClient() {
 before(async () => {
   const port = await getOpenPort();
   serverUrl = `http://127.0.0.1:${port}`;
-  dataFilePath = path.join(os.tmpdir(), `nexus-voice-test-${process.pid}-${Date.now()}.json`);
+  dataFilePath = path.join(os.tmpdir(), `bacolar-voice-test-${process.pid}-${Date.now()}.json`);
 
   signalingProcess = spawn(process.execPath, ['dist/index.js'], {
     cwd: process.cwd(),
     env: {
       ...process.env,
       PORT: String(port),
-      NEXUS_DATA_FILE: dataFilePath
+      BACOLAR_DATA_FILE: dataFilePath
     },
     stdio: 'ignore'
   });
