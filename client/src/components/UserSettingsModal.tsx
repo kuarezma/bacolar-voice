@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { UserStatus } from '../types';
-import { X, User, Gamepad2, Shield, Sparkles, Check, Server } from 'lucide-react';
-import { getServerUrl, getDefaultServerUrl, setServerUrl, normalizeServerUrl } from '../config/server';
+import { X, User, Gamepad2, Shield, Sparkles, Check, Server, KeyRound } from 'lucide-react';
+import { getServerUrl, getDefaultServerUrl, setServerUrl, normalizeServerUrl, getServerToken, setServerToken } from '../config/server';
 
 interface Props {
   isOpen: boolean;
@@ -18,6 +18,7 @@ export const UserSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [currentGame, setCurrentGame] = useState(user?.currentGame || '');
   const [selectedAvatar, setSelectedAvatar] = useState(user?.avatar || avatarPresets[0].id);
   const [serverUrl, setServerUrlInput] = useState(getServerUrl());
+  const [serverToken, setServerTokenInput] = useState(getServerToken());
 
   if (!isOpen || !user) return null;
 
@@ -32,8 +33,10 @@ export const UserSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
     });
 
     const nextServerUrl = normalizeServerUrl(serverUrl) || getDefaultServerUrl();
-    if (nextServerUrl !== getServerUrl()) {
+    const nextServerToken = serverToken.trim();
+    if (nextServerUrl !== getServerUrl() || nextServerToken !== getServerToken()) {
       setServerUrl(nextServerUrl);
+      setServerToken(nextServerToken);
       // Socket bağlantısı açılışta bir kez kurulduğu için adres değişiminde yeniden yükleme gerekir.
       window.location.reload();
       return;
@@ -191,6 +194,26 @@ export const UserSettingsModal: React.FC<Props> = ({ isOpen, onClose }) => {
               Arkadaşlarınızla aynı odalarda buluşmak için hepinizin <span className="text-slate-300">aynı adresi</span> girmesi gerekir
               (örn. <span className="font-mono text-slate-300">http://192.168.1.20:3001</span>).
               Adres değiştirildiğinde uygulama yeniden yüklenir.
+            </p>
+          </div>
+
+          {/* Sunucu Şifresi */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <KeyRound className="w-4 h-4 text-amber-400" /> Sunucu Şifresi (İsteğe Bağlı)
+            </label>
+            <input
+              type="password"
+              value={serverToken}
+              onChange={(e) => setServerTokenInput(e.target.value)}
+              placeholder="Korumasız sunucularda boş bırakın"
+              spellCheck={false}
+              className="w-full bg-[#171f30] border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono text-xs focus:outline-none focus:border-indigo-500"
+            />
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Sunucuyu herkese açık bir adreste çalıştıran kişi bir şifre belirlediyse
+              (<span className="font-mono text-slate-300">BACOLAR_SERVER_TOKEN</span>), aynı değeri buraya girin.
+              Yanlış şifreyle bağlantı reddedilir.
             </p>
           </div>
         </div>

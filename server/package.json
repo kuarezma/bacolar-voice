@@ -1,6 +1,6 @@
 {
   "name": "bacolar-voice-server",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "BacolarVoice Ultra-low Latency Signaling & State Server",
   "main": "dist/index.js",
   "scripts": {

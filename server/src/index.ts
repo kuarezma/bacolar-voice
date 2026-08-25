@@ -19,6 +19,39 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3001;
 
+// Boş bırakılırsa sunucu herkese açık çalışır. Herkese açık bir adrese
+// koyarken doldurulmalı: istemciler bu değeri bilmeden bağlanamaz.
+const SERVER_TOKEN = (process.env.BACOLAR_SERVER_TOKEN || '').trim();
+
+// P2P bağlantı simetrik NAT / CGNAT arkasında STUN ile kurulamaz; TURN
+// bilgisi tanımlıysa istemcilere buradan dağıtılır.
+const TURN_URLS = (process.env.BACOLAR_TURN_URLS || '')
+  .split(',')
+  .map(url => url.trim())
+  .filter(Boolean);
+const TURN_USERNAME = process.env.BACOLAR_TURN_USERNAME || '';
+const TURN_CREDENTIAL = process.env.BACOLAR_TURN_CREDENTIAL || '';
+
+const DEFAULT_STUN_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' }
+];
+
+function buildIceServers() {
+  if (TURN_URLS.length === 0) return DEFAULT_STUN_SERVERS;
+
+  return [
+    ...DEFAULT_STUN_SERVERS,
+    { urls: TURN_URLS, username: TURN_USERNAME, credential: TURN_CREDENTIAL }
+  ];
+}
+
+function isTokenValid(candidate: unknown): boolean {
+  if (!SERVER_TOKEN) return true;
+  return typeof candidate === 'string' && candidate === SERVER_TOKEN;
+}
+
 // Electron ana süreci bu kodu "port dolu" olarak yorumlar.
 const EXIT_PORT_IN_USE = 3;
 
@@ -28,6 +61,17 @@ const socketToUser = new Map<string, string>();
 const userToSocket = new Map<string, string>();
 
 // --- REST ENDPOINTS ---
+
+// /api/health kimlik doğrulamasının dışında: Electron ana süreci portu kimin
+// tuttuğunu token'ı bilmeden anlayabilmeli.
+app.use('/api', (req, res, next) => {
+  if (req.path === '/health' || isTokenValid(req.header('x-bacolar-token'))) return next();
+  res.status(401).json({ error: 'Sunucu şifresi geçersiz.' });
+});
+
+app.get('/api/ice-servers', (_req, res) => {
+  res.json({ iceServers: buildIceServers() });
+});
 
 app.get('/api/health', (req, res) => {
   // service alanı, Electron'un 3001'i tutan sürecin gerçekten BacolarVoice olup
@@ -75,6 +119,11 @@ app.get('/api/users/search', (req, res) => {
 
 // --- SOCKET.IO EVENTS ---
 
+io.use((socket, next) => {
+  if (isTokenValid(socket.handshake.auth?.token)) return next();
+  next(new Error('invalid-server-token'));
+});
+
 io.on('connection', (socket: Socket) => {
   console.log(`[Socket] Connected: ${socket.id}`);
 
@@ -83,6 +132,14 @@ io.on('connection', (socket: Socket) => {
     let user = store.getUser(userData.userId);
     if (!user) {
       user = store.getOrCreateUser(userData.username, userData.tag, userData.avatar);
+    }
+
+    // Aynı kimlikle ikinci bir oturum, açık oturumu ele geçirmenin en kolay
+    // yolu olurdu; ilk oturum kapanana kadar reddedilir.
+    const activeSocketId = userToSocket.get(user.id);
+    if (activeSocketId && activeSocketId !== socket.id) {
+      socket.emit('auth-error', { reason: 'already-connected' });
+      return;
     }
 
     socketToUser.set(socket.id, user.id);
@@ -543,4 +600,10 @@ server.on('error', (err: NodeJS.ErrnoException) => {
 
 server.listen(PORT, () => {
   console.log(`🚀 BacolarVoice Signaling Server running on http://localhost:${PORT}`);
+  if (!SERVER_TOKEN) {
+    console.warn('⚠️  BACOLAR_SERVER_TOKEN tanımlı değil: sunucuya erişebilen herkes bağlanabilir.');
+  }
+  if (TURN_URLS.length === 0) {
+    console.warn('⚠️  BACOLAR_TURN_URLS tanımlı değil: simetrik NAT arkasındaki kullanıcılar bağlanamayabilir.');
+  }
 });

@@ -3,11 +3,13 @@ import { io, Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { UserProfile, VoiceRoom, FriendRequest } from '../types';
 import { sounds } from '../audio/soundEffects';
-import { getServerUrl } from '../config/server';
+import { loadIceServers } from '../audio/AudioController';
+import { getServerUrl, getServerToken } from '../config/server';
 
 interface SocketContextType {
   socket: Socket | null;
   isConnected: boolean;
+  connectionError: string | null;
   ping: number;
   rooms: VoiceRoom[];
   friends: UserProfile[];
@@ -25,6 +27,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const { user, updateProfile } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
   const [ping, setPing] = useState(12);
   const [rooms, setRooms] = useState<VoiceRoom[]>([]);
   const [friends, setFriends] = useState<UserProfile[]>([]);
@@ -39,12 +42,32 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const s = io(getServerUrl(), {
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 10,
-      reconnectionDelay: 1000
+      reconnectionDelay: 1000,
+      auth: { token: getServerToken() }
+    });
+
+    s.on('connect_error', (error: Error) => {
+      setIsConnected(false);
+      setConnectionError(
+        error.message === 'invalid-server-token'
+          ? 'Sunucu şifresi geçersiz. Oyuncu Profili ayarlarından doğru şifreyi girin.'
+          : `Sunucuya bağlanılamadı (${getServerUrl()}). Adresi ve sunucunun açık olduğunu kontrol edin.`
+      );
+    });
+
+    s.on('auth-error', (data: { reason: string }) => {
+      setConnectionError(
+        data.reason === 'already-connected'
+          ? 'Bu hesap başka bir cihazda açık. Diğer oturumu kapatıp yeniden deneyin.'
+          : 'Kimlik doğrulaması başarısız oldu.'
+      );
     });
 
     s.on('connect', () => {
       console.log('✅ Connected to BacolarVoice Server');
       setIsConnected(true);
+      setConnectionError(null);
+      void loadIceServers();
 
       if (user) {
         s.emit('authenticate', {
@@ -169,6 +192,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       value={{
         socket,
         isConnected,
+        connectionError,
         ping,
         rooms,
         friends,

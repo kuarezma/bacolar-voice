@@ -1,6 +1,6 @@
 {
   "name": "bacolar-voice",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "BacolarVoice - Ultra-low Latency Gaming Voice Chat App for macOS & Windows",
   "main": "electron/dist/main.js",
   "scripts": {

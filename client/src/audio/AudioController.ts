@@ -1,4 +1,5 @@
 import { sounds } from './soundEffects';
+import { getServerUrl, getServerToken } from '../config/server';
 
 export type InputMode = 'voice_activity' | 'push_to_talk';
 
@@ -38,13 +39,41 @@ export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   soundEffectsEnabled: true
 };
 
-const ICE_SERVERS: RTCConfiguration = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'stun:stun2.l.google.com:19302' }
-  ]
-};
+const FALLBACK_ICE_SERVERS: RTCIceServer[] = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' }
+];
+
+// Yalnızca STUN ile simetrik NAT / CGNAT arkasındaki eşler bağlanamaz. TURN
+// bilgisi sunucuda tanımlıysa oradan gelir; gelmezse STUN'a düşülür.
+let iceServers: RTCIceServer[] = FALLBACK_ICE_SERVERS;
+let iceServersLoaded = false;
+
+export async function loadIceServers(): Promise<void> {
+  if (iceServersLoaded) return;
+
+  try {
+    const token = getServerToken();
+    const response = await fetch(`${getServerUrl()}/api/ice-servers`, {
+      headers: token ? { 'x-bacolar-token': token } : undefined
+    });
+    if (!response.ok) throw new Error(String(response.status));
+
+    const data = await response.json();
+    if (Array.isArray(data.iceServers) && data.iceServers.length > 0) {
+      iceServers = data.iceServers;
+    }
+  } catch (error) {
+    console.warn('ICE sunucu listesi alınamadı, varsayılan STUN listesi kullanılıyor:', error);
+  } finally {
+    iceServersLoaded = true;
+  }
+}
+
+function getIceConfiguration(): RTCConfiguration {
+  return { iceServers };
+}
 
 export class AudioController {
   private localStream: MediaStream | null = null;
@@ -410,7 +439,7 @@ export class AudioController {
     // Varsa eskisini kapat
     this.closePeerConnection(userId);
 
-    const pc = new RTCPeerConnection(ICE_SERVERS);
+    const pc = new RTCPeerConnection(getIceConfiguration());
     this.peerConnections.set(userId, pc);
 
     pc.onicecandidate = (event) => {

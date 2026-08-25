@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { SocketProvider } from './context/SocketContext';
+import { SocketProvider, useSocket } from './context/SocketContext';
 import { VoiceProvider, useVoice } from './context/VoiceContext';
 import { Sidebar } from './components/Sidebar';
 import { VoiceRoomView } from './components/VoiceRoomView';
@@ -9,7 +9,19 @@ import { AudioSettingsModal } from './components/AudioSettingsModal';
 import { UserSettingsModal } from './components/UserSettingsModal';
 import { CreateRoomModal } from './components/CreateRoomModal';
 import { DirectCallModal } from './components/DirectCallModal';
-import { Radio, Users, Sliders, ShieldCheck, Zap, Headphones, Gamepad2 } from 'lucide-react';
+import { Radio, Users, Sliders, ShieldCheck, Zap, Headphones, Gamepad2, AlertTriangle } from 'lucide-react';
+
+const ConnectionBanner: React.FC = () => {
+  const { connectionError } = useSocket();
+  if (!connectionError) return null;
+
+  return (
+    <div className="flex items-start gap-2.5 px-4 py-2.5 bg-rose-950/70 border-b border-rose-800 text-rose-100 text-xs">
+      <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-rose-400" />
+      <span className="leading-relaxed">{connectionError}</span>
+    </div>
+  );
+};
 
 const MainLayout: React.FC = () => {
   const { currentRoom } = useVoice();
@@ -38,6 +50,7 @@ const MainLayout: React.FC = () => {
 
       {/* Ana İçerik Alanı */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <ConnectionBanner />
         {activeView === 'room' && currentRoom ? (
           <VoiceRoomView />
         ) : activeView === 'friends' ? (

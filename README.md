@@ -50,6 +50,48 @@ Aynı yerel ağda değilseniz sunucunun internetten erişilebilir olması gereki
 
 ---
 
+## 🔒 Sunucuyu Şifreyle Koruma
+
+Sinyalleşme sunucusu varsayılan olarak korumasızdır: adrese erişebilen herkes bağlanabilir. Yerel ağda sorun değildir, ama herkese açık bir adreste çalıştırıyorsanız bir şifre belirleyin:
+
+```bash
+BACOLAR_SERVER_TOKEN=paylasilan-gizli-deger npm start
+```
+
+Kullanıcılar aynı değeri **Oyuncu Profili → Sunucu Şifresi** alanına girer. Yanlış şifreyle hem WebSocket bağlantısı hem REST çağrıları reddedilir ve uygulamada açıklayıcı bir uyarı çıkar. `/api/health` bilinçli olarak korumasız bırakılmıştır; masaüstü uygulaması 3001 portunu kimin tuttuğunu şifreyi bilmeden anlayabilmelidir.
+
+Ek olarak aynı hesapla ikinci bir oturum açılamaz — açık oturum kapanmadan gelen ikinci bağlantı reddedilir.
+
+---
+
+## 🌍 TURN Sunucusu (Simetrik NAT Arkasındaki Kullanıcılar)
+
+Ses trafiği eşler arasında doğrudan (P2P) akar. Yalnızca STUN kullanıldığında simetrik NAT veya CGNAT arkasındaki kullanıcılar (bazı mobil hatlar ve ISS'ler) birbirine bağlanamaz. Bunu çözmek için bir TURN sunucusu gerekir; adres ve kimlik bilgisi sunucuya tanımlanır, istemciler listeyi `/api/ice-servers` üzerinden otomatik çeker:
+
+```bash
+BACOLAR_TURN_URLS="turn:turn.ornek.net:3478,turns:turn.ornek.net:5349" \
+BACOLAR_TURN_USERNAME=kullanici \
+BACOLAR_TURN_CREDENTIAL=parola \
+npm start
+```
+
+TURN sunucusunu kendiniz barındırabilir (`coturn`) veya hazır bir servis kullanabilirsiniz. Tanımlanmazsa uygulama STUN listesiyle çalışmaya devam eder; çoğu ev ağında bu yeterlidir.
+
+---
+
+## ✍️ Windows Paketlerini İmzalama
+
+Windows paketleri varsayılan olarak imzasız üretilir ve kullanıcı ilk çalıştırmada SmartScreen uyarısı görür. Bir kod imzalama sertifikanız varsa depo ayarlarına iki secret ekleyin; CI bunları görürse paketleri otomatik imzalar:
+
+| Secret | İçerik |
+|---|---|
+| `WINDOWS_CERTIFICATE_BASE64` | `.pfx` sertifikanın base64 kodlanmış hali |
+| `WINDOWS_CERTIFICATE_PASSWORD` | Sertifikanın parolası |
+
+Secret'lar tanımlı değilse yapı akışı değişmez, paketler imzasız üretilir. macOS tarafında ad-hoc imza kullanılır; Windows'ta ad-hoc imzanın karşılığı yoktur ve kendinden imzalı sertifika SmartScreen uyarısını kaldırmaz.
+
+---
+
 ## ✨ Temel Özellikler
 
 ### 1. 🎙️ Düşük Gecikmeli Ses Motoru & Gelişmiş Mikrofon Ayarları
@@ -121,6 +163,15 @@ Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim 
 ---
 
 ## Değişiklik Günlüğü
+
+### v1.0.5 — 2026-08-25
+
+- Sunucuya paylaşılan şifre koruması eklendi (`BACOLAR_SERVER_TOKEN`); yanlış şifre hem WebSocket hem REST tarafında reddediliyor ve uygulamada uyarı olarak gösteriliyor.
+- Aynı hesapla ikinci oturum açılması engellendi.
+- TURN sunucusu desteği eklendi; ICE listesi artık sunucudan (`/api/ice-servers`) dinamik olarak alınıyor, tanımlı değilse STUN'a düşülüyor.
+- CI, kod imzalama sertifikası secret olarak tanımlandığında Windows paketlerini imzalıyor.
+- Sunucu regresyon testleri 2'den 7'ye çıkarıldı: sinyal yönlendirme, oturum kilidi, TURN dağıtımı ve şifre koruması kapsandı.
+- Ortam değişkenleri için `.env.example` eklendi.
 
 ### v1.0.4 — 2026-08-25
 

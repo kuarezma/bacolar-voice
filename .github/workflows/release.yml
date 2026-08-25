@@ -44,11 +44,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Sertifika secret'ları tanımlıysa electron-builder paketleri imzalar;
+      # tanımlı değilse imzasız üretir ve SmartScreen uyarısı çıkar.
       - name: Build Windows Installers (.exe & portable)
         if: matrix.os == 'windows-latest'
         run: npx electron-builder --win --publish never
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
 
       - name: Upload Artifacts to GitHub Release
         uses: softprops/action-gh-release@v2

@@ -8,9 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { io } from 'socket.io-client';
 
-let signalingProcess;
-let serverUrl;
-let dataFilePath;
+let openServer;
 
 function getOpenPort() {
   return new Promise((resolve, reject) => {
@@ -43,6 +41,34 @@ async function waitForHealthCheck(url) {
   throw new Error('Sinyalleşme sunucusu zamanında başlatılamadı.');
 }
 
+async function startSignalingServer(extraEnv = {}) {
+  const port = await getOpenPort();
+  const url = `http://127.0.0.1:${port}`;
+  const dataFilePath = path.join(
+    os.tmpdir(),
+    `bacolar-voice-test-${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}.json`
+  );
+
+  const child = spawn(process.execPath, ['dist/index.js'], {
+    cwd: process.cwd(),
+    env: { ...process.env, PORT: String(port), BACOLAR_DATA_FILE: dataFilePath, ...extraEnv },
+    stdio: 'ignore'
+  });
+
+  await waitForHealthCheck(url);
+  return { child, url, dataFilePath };
+}
+
+async function stopSignalingServer(server) {
+  if (!server) return;
+  if (server.child.exitCode === null) {
+    const exited = once(server.child, 'exit');
+    server.child.kill();
+    await exited;
+  }
+  await rm(server.dataFilePath, { force: true });
+}
+
 function waitForEvent(socket, eventName, predicate = () => true) {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
@@ -72,11 +98,12 @@ function waitForEvent(socket, eventName, predicate = () => true) {
   });
 }
 
-async function connectClient() {
-  const socket = io(serverUrl, {
+async function connectClient(url = openServer.url, token = '') {
+  const socket = io(url, {
     autoConnect: false,
     reconnection: false,
-    transports: ['websocket']
+    transports: ['websocket'],
+    auth: { token }
   });
 
   const connected = waitForEvent(socket, 'connect');
@@ -85,31 +112,21 @@ async function connectClient() {
   return socket;
 }
 
+// Sunucu tanımadığı bir kimlik için yeni kullanıcı üretir ve id'yi kendisi
+// atar; yönlendirme testleri bu gerçek id'ye bakmalı.
+async function authenticate(socket, userId, username) {
+  const authorized = waitForEvent(socket, 'auth-success');
+  socket.emit('authenticate', { userId, username, tag: '1001', avatar: 'avatar-cyber-ninja' });
+  const { user } = await authorized;
+  return user.id;
+}
+
 before(async () => {
-  const port = await getOpenPort();
-  serverUrl = `http://127.0.0.1:${port}`;
-  dataFilePath = path.join(os.tmpdir(), `bacolar-voice-test-${process.pid}-${Date.now()}.json`);
-
-  signalingProcess = spawn(process.execPath, ['dist/index.js'], {
-    cwd: process.cwd(),
-    env: {
-      ...process.env,
-      PORT: String(port),
-      BACOLAR_DATA_FILE: dataFilePath
-    },
-    stdio: 'ignore'
-  });
-
-  await waitForHealthCheck(serverUrl);
+  openServer = await startSignalingServer();
 });
 
 after(async () => {
-  if (signalingProcess && signalingProcess.exitCode === null) {
-    const exited = once(signalingProcess, 'exit');
-    signalingProcess.kill();
-    await exited;
-  }
-  await rm(dataFilePath, { force: true });
+  await stopSignalingServer(openServer);
 });
 
 test('acknowledges a client ping', async () => {
@@ -154,4 +171,109 @@ test('synchronizes a newly created room to the creator', async () => {
   const { rooms } = await roomSync;
   assert.ok(rooms.some(room => room.name === roomName));
   socket.disconnect();
+});
+
+test('relays a WebRTC offer to the addressed peer only', async () => {
+  const caller = await connectClient();
+  const callee = await connectClient();
+  const bystander = await connectClient();
+
+  await authenticate(caller, 'test-signal-caller', 'SignalCaller');
+  const calleeId = await authenticate(callee, 'test-signal-callee', 'SignalCallee');
+  await authenticate(bystander, 'test-signal-bystander', 'SignalBystander');
+
+  const delivered = waitForEvent(callee, 'signal-offer');
+  let leaked = false;
+  bystander.on('signal-offer', () => { leaked = true; });
+
+  caller.emit('signal-offer', {
+    toUserId: calleeId,
+    offer: { type: 'offer', sdp: 'v=0 regression' },
+    roomId: 'room-under-test'
+  });
+
+  const payload = await delivered;
+  assert.equal(payload.offer.sdp, 'v=0 regression');
+  assert.equal(leaked, false, 'Teklif ilgisiz bir istemciye de gitti.');
+
+  caller.disconnect();
+  callee.disconnect();
+  bystander.disconnect();
+});
+
+test('rejects a second session for an already connected identity', async () => {
+  const first = await connectClient();
+  await authenticate(first, 'test-duplicate-identity', 'DuplicateTester');
+
+  const second = await connectClient();
+  const rejection = waitForEvent(second, 'auth-error');
+  second.emit('authenticate', {
+    userId: 'test-duplicate-identity',
+    username: 'DuplicateTester',
+    tag: '1001'
+  });
+
+  const { reason } = await rejection;
+  assert.equal(reason, 'already-connected');
+
+  first.disconnect();
+  second.disconnect();
+});
+
+test('serves the default STUN list when no TURN server is configured', async () => {
+  const response = await fetch(`${openServer.url}/api/ice-servers`);
+  assert.equal(response.status, 200);
+
+  const { iceServers } = await response.json();
+  assert.ok(iceServers.length > 0);
+  assert.ok(iceServers.every(entry => !entry.credential), 'TURN tanımsızken kimlik bilgisi dönmemeli.');
+});
+
+test('advertises the configured TURN server to clients', async () => {
+  const server = await startSignalingServer({
+    BACOLAR_TURN_URLS: 'turn:turn.example.net:3478,turns:turn.example.net:5349',
+    BACOLAR_TURN_USERNAME: 'regression',
+    BACOLAR_TURN_CREDENTIAL: 'secret-credential'
+  });
+
+  try {
+    const { iceServers } = await (await fetch(`${server.url}/api/ice-servers`)).json();
+    const turn = iceServers.find(entry => entry.credential === 'secret-credential');
+
+    assert.ok(turn, 'TURN girdisi ICE listesinde yok.');
+    assert.deepEqual(turn.urls, ['turn:turn.example.net:3478', 'turns:turn.example.net:5349']);
+    assert.equal(turn.username, 'regression');
+  } finally {
+    await stopSignalingServer(server);
+  }
+});
+
+test('refuses sockets and REST calls that do not present the server token', async () => {
+  const server = await startSignalingServer({ BACOLAR_SERVER_TOKEN: 'regression-token' });
+
+  try {
+    await assert.rejects(
+      connectClient(server.url, 'wrong-token'),
+      /invalid-server-token/,
+      'Yanlış şifreyle bağlantı kabul edildi.'
+    );
+
+    const unauthorized = await fetch(`${server.url}/api/ice-servers`);
+    assert.equal(unauthorized.status, 401);
+
+    const authorized = await fetch(`${server.url}/api/ice-servers`, {
+      headers: { 'x-bacolar-token': 'regression-token' }
+    });
+    assert.equal(authorized.status, 200);
+
+    // Electron ana süreci portu kimin tuttuğunu token'sız anlayabilmeli.
+    const health = await fetch(`${server.url}/api/health`);
+    assert.equal(health.status, 200);
+    assert.equal((await health.json()).service, 'bacolarvoice-signaling');
+
+    const accepted = await connectClient(server.url, 'regression-token');
+    accepted.disconnect();
+  } finally {
+    await stopSignalingServer(server);
+  }
 });
