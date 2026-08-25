@@ -1,6 +1,6 @@
 {
   "name": "nexus-voice",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "NexusVoice - Ultra-low Latency Gaming Voice Chat App for macOS & Windows",
   "main": "electron/dist/main.js",
   "scripts": {
@@ -68,10 +68,14 @@
       ]
     },
     "nsis": {
+      "artifactName": "${productName}-${version}-${os}-${arch}-Setup.${ext}",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-${os}-${arch}-Portable.${ext}"
     }
   }
 }

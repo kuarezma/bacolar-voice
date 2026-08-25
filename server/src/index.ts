@@ -19,6 +19,9 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 3001;
 
+// Electron ana süreci bu kodu "port dolu" olarak yorumlar.
+const EXIT_PORT_IN_USE = 3;
+
 // Socket ID -> User ID eşleşmesi
 const socketToUser = new Map<string, string>();
 // User ID -> Socket ID eşleşmesi
@@ -27,7 +30,9 @@ const userToSocket = new Map<string, string>();
 // --- REST ENDPOINTS ---
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', time: Date.now(), usersCount: store.getAllRooms().length });
+  // service alanı, Electron'un 3001'i tutan sürecin gerçekten NexusVoice olup
+  // olmadığını ayırt etmesi için gerekiyor.
+  res.json({ service: 'nexusvoice-signaling', status: 'ok', time: Date.now(), usersCount: store.getAllRooms().length });
 });
 
 app.post('/api/auth/login', (req, res) => {
@@ -525,6 +530,15 @@ io.on('connection', (socket: Socket) => {
     }
     console.log(`[Socket] Disconnected: ${socket.id}`);
   });
+});
+
+server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`${PORT} portu zaten kullanımda; sinyalleşme sunucusu başlatılamadı.`);
+    process.exit(EXIT_PORT_IN_USE);
+  }
+  console.error('Sinyalleşme sunucusu hatası:', err);
+  process.exit(1);
 });
 
 server.listen(PORT, () => {

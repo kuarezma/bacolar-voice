@@ -16,8 +16,8 @@ Uygulamanın en son sürümünü işletim sisteminize göre doğrudan aşağıda
 |---|---|---|
 | 🍏 **macOS (Apple Silicon M1/M2/M3/M4)** | `.dmg` Dosyası | [⬇️ NexusVoice-mac-arm64.dmg İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
 | 🍏 **macOS (Intel x64)** | `.dmg` Dosyası | [⬇️ NexusVoice-mac-x64.dmg İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
-| 🪟 **Windows 10 / 11 (Kurulum Sihirbazı)** | `.exe` (NSIS Installer) | [⬇️ NexusVoice-win-Setup.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
-| 🪟 **Windows Portable (Kurulumsuz)** | `.exe` (Portable) | [⬇️ NexusVoice-win-portable.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
+| 🪟 **Windows 10 / 11 (Kurulum Sihirbazı)** | `.exe` (NSIS Installer) | [⬇️ NexusVoice-win-x64-Setup.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
+| 🪟 **Windows Portable (Kurulumsuz)** | `.exe` (Portable) | [⬇️ NexusVoice-win-x64-Portable.exe İndir](https://github.com/kuarezma/nexus-voice/releases/latest) |
 
 > 💡 Tüm geçmiş sürümler ve ek paketler için **[GitHub Releases Sayfası](https://github.com/kuarezma/nexus-voice/releases)**'nı ziyaret edebilirsiniz.
 
@@ -121,6 +121,13 @@ Paketli masaüstü uygulaması ilk açılışta kullanıcı verilerini işletim 
 ---
 
 ## Değişiklik Günlüğü
+
+### v1.0.3 — 2026-08-25
+
+- 3001 portu başka bir uygulama tarafından kullanıldığında uygulama artık sessizce bağlantısız kalmıyor; sebebi açıklayan bir uyarı gösteriyor.
+- Aynı anda ikinci bir NexusVoice penceresi açılması engellendi; ikinci deneme mevcut pencereyi öne getiriyor.
+- Zaten çalışan bir NexusVoice sunucusu varsa uygulama onu tanıyıp yeniden başlatmaya çalışmıyor.
+- Windows kurulum sihirbazı ve portable sürüm aynı dosya adını üretip birbirini eziyordu; artık `-Setup.exe` ve `-Portable.exe` olarak ayrı yayınlanıyor.
 
 ### v1.0.2 — 2026-08-25
 
